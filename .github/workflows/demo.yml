@@ -27,7 +27,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Get code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Cache dependencies
         id: cache-node-modules
         uses: actions/cache@v4
@@ -39,9 +39,21 @@ jobs:
         run: npm ci
       - name: Build website
         run: npm run build
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-files
+          path: dist
   deploy:
     needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
         run: echo "Deploying..."
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-files
+          path: dist
+      - name: list files
+        run: ls -la dist
