@@ -25,6 +25,8 @@ jobs:
   build:
     needs: test
     runs-on: ubuntu-latest
+    outputs:
+      filename: ${{ steps.build.outputs.filename }}
     steps:
       - name: Get code
         uses: actions/checkout@v4
@@ -38,7 +40,10 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: npm ci
       - name: Build website
-        run: npm run build
+        id: build
+        run: |
+          npm run build
+          echo "filename=$(ls dist/assets/*.js | xargs basename)" >> "$GITHUB_OUTPUT"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -57,3 +62,7 @@ jobs:
           path: dist
       - name: list files
         run: ls -la dist
+      - name: Get JS filename
+        run: echo '${{ needs.build.outputs.filename }}'
+        
+        
